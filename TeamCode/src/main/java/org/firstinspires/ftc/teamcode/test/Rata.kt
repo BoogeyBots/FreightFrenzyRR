@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.util.ElapsedTime
 
-@TeleOp(name = "TeleOp rata")
+@TeleOp(name = "TeleOp Rata")
 class BasicTeleOp : LinearOpMode() {
 
     private var rata: CRServo? = null

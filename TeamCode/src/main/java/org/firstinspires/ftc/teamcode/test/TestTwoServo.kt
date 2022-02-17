@@ -7,23 +7,23 @@ import com.qualcomm.robotcore.hardware.Servo
 
 @TeleOp()
 class TestTwoServo : LinearOpMode(){
-    private var servo1: Servo? = null
-    private var servo2: Servo? = null
+    lateinit var servo1: Servo
+    lateinit var servo2: Servo
 
     override fun runOpMode() {
-        servo1 = hardwareMap?.get(Servo::class.java, "servo1")
-        servo2 = hardwareMap?.get(Servo::class.java, "servo2")
+        servo1 = hardwareMap.get(Servo::class.java, "intake_servo1")
+        servo2 = hardwareMap.get(Servo::class.java, "intake_servo2")
 
         waitForStart()
 
         while(opModeIsActive()){
             if(gamepad1.a){
-                servo1!!.position = 0.84
-                servo2!!.position = 0.16
+                servo1!!.position = 0.8
+                servo2!!.position = 0.2
             }
             if (gamepad1.b){
-                servo1!!.position = 0.00
-                servo2!!.position = 1.00
+                servo1!!.position = 0.2
+                servo2!!.position = 0.8
             }
 
             telemetry.addData("Servo 1 pozitie", servo1!!.position)

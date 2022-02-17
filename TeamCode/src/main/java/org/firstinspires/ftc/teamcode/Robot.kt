@@ -10,15 +10,7 @@ import org.firstinspires.ftc.teamcode.modules.*
 typealias Mecanum = SampleMecanumDrive
 
 class Robot(val modules: Set<RobotModule>){
-
-    fun init(){
-        modules.forEach(){
-            it.init()
-        }
-    }
-
     inline fun <reified T: RobotModule> get(): T = modules.first { x -> x is T } as T
-
 
 }
 

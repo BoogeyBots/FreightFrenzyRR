@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.modules.TestModule
 @TeleOp(name = "Test Servo Move", group = "TEST")
 class TestServoMove : BBLinearOpMode() {
     override val modules = Robot(setOf(TestModule(this)))
-    var resolution = 0.005
+    var resolution = 0.00005
     var resChangeSpeed = 0.00000001
 
     // NOTES

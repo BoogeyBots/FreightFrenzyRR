@@ -16,7 +16,7 @@ interface RobotModule {
     val linearOpMode get() = opMode as LinearOpMode
 
 
-    // NU UITA SA APELEZI ASTA PESTE TOT
+    // NU UITA SA APELEZI ASTA PESTE TOT!!!
     fun init() { }
 
     fun <T: HardwareDevice> get(name: String): T = components[name] as T

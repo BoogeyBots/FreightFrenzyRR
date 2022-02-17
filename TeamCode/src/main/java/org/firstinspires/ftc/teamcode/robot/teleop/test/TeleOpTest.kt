@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.robot.teleop.test
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
@@ -13,14 +14,13 @@ class TeleOpTest : BBLinearOpMode() {
     override val modules: Robot = Robot(setOf(IntakeModule(this)))
 
     override fun runOpMode() {
-        // val drive = SampleMecanumDrive(hardwareMap)
-        modules.init()
+        val drive = SampleMecanumDrive(hardwareMap)
 
         waitForStart()
 
         while (!isStopRequested)
         {
-            /*
+
             if (gamepad1.right_trigger > 0.0) {
                 forwardMovement = gamepad1.right_trigger.toDouble()
             } else if (gamepad1.left_trigger > 0.0) {
@@ -39,22 +39,8 @@ class TeleOpTest : BBLinearOpMode() {
             drive.update()
 
 
-             */
-            if(gamepad1.right_bumper){
-                get<IntakeModule>().intake_up()
-            }
-            else if(gamepad1.left_bumper){
-                get<IntakeModule>().intake_down()
-            }
-            if (gamepad1.a){
-                get<IntakeModule>().intake_in()
-            }
-            else if(gamepad1.b){
-                get<IntakeModule>().intake_out()
-            }
-            else{
-                get<IntakeModule>().intake_stop()
-            }
+
+
 
 
 
@@ -68,3 +54,6 @@ class TeleOpTest : BBLinearOpMode() {
         var forwardMovement: Double = 0.0
     }
 }
+
+
+

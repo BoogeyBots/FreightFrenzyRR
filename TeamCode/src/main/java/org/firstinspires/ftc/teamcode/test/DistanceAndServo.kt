@@ -41,20 +41,9 @@ import com.qualcomm.robotcore.hardware.DistanceSensor
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 
-/**
- * [SensorREV2mDistance] illustrates how to use the REV Robotics
- * Time-of-Flight Range Sensor.
- *
- * The op mode assumes that the range sensor is configured with a name of "sensor_range".
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- *
- * @see [REV Robotics Web Page](http://revrobotics.com)
- */
-@TeleOp(name = "Sensor: REV2mDistance", group = "Sensor")
+@TeleOp(name = "Distance și Servo", group = "Sensor")
 
-class SensorREV2mDistance : LinearOpMode() {
+class DistanceAndServo : LinearOpMode() {
     lateinit var sensorRange: DistanceSensor
     lateinit var servo: Servo
     private var dcmotor: DcMotor? = null
@@ -68,9 +57,9 @@ class SensorREV2mDistance : LinearOpMode() {
         // you can use this as a regular DistanceSensor.
         sensorRange = hardwareMap.get(DistanceSensor::class.java, "sensor_range")
         servo = hardwareMap.get(Servo::class.java, "servo")
-        servo1 = hardwareMap?.get(Servo::class.java, "servo1")
-        servo2 = hardwareMap?.get(Servo::class.java, "servo2")
-        servo.position = 1.0
+        servo1 = hardwareMap?.get(Servo::class.java, "intake_servo1")
+        servo2 = hardwareMap?.get(Servo::class.java, "intake_servo2")
+        servo.position = 0.65
 
 
         // you can also cast this to a Rev2mDistanceSensor if you want to use added
@@ -80,29 +69,65 @@ class SensorREV2mDistance : LinearOpMode() {
         waitForStart()
         while (opModeIsActive()) {
             if(gamepad1.a){
-                servo1!!.position = 0.9
-                servo2!!.position = 0.1
+                servo1!!.position = 0.8
+                servo2!!.position = 0.2
+
             }
             if (gamepad1.b){
                 servo1!!.position = 0.1
                 servo2!!.position = 0.9
                 sleep(1000)
-                servo.position = 1.0
+                servo.position = 0.65
+
             }
+
             if(gamepad1.left_trigger > 0.02){
                 dcmotor?.power = -gamepad1.left_trigger.toDouble()
             }
             else if(gamepad1.right_trigger > 0.02){
                 dcmotor?.power = gamepad1.right_trigger.toDouble()
             }
+
+            else if(gamepad1.y) {
+                if (!has_detected) {
+                    dcmotor?.power = -0.6
+                }
+            }
+
             else
                 dcmotor?.power = 0.0
 
-            if(sensorRange.getDistance(DistanceUnit.CM) < 4.0){
-                servo.position = 0.78
+            if(sensorRange.getDistance(DistanceUnit.CM) < 6.5){
+                servo.position = 0.0
+                has_detected = true
             }
 
-            
+
+
+
+            if(has_detected)
+            {
+
+                servo1!!.position = 0.2
+                servo2!!.position = 0.8
+
+                sleep(500)
+                dcmotor?.power = 0.0
+
+                sleep(500)
+                servo.position = 0.0
+
+                sleep(500)
+
+                servo1!!.position = 0.8
+                servo2!!.position = 0.2
+
+                sleep(500)
+
+                servo.position = .65
+                has_detected = false
+            }
+
             telemetry.addData(
                 "range",
                 String.format("%.01f cm", sensorRange.getDistance(DistanceUnit.CM))
@@ -110,5 +135,10 @@ class SensorREV2mDistance : LinearOpMode() {
 
             telemetry.update()
         }
+    }
+
+    companion object{
+        var is_up = false
+        var has_detected = false
     }
 }
