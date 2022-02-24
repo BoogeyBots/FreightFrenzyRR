@@ -43,8 +43,8 @@ class Detectare( override val opMode: OpMode) : OpenCvPipeline(), RobotModule {
 
     override fun processFrame(input: Mat): Mat {
         Imgproc.cvtColor(input, mat, Imgproc.COLOR_RGB2HSV)
-        val lowHSV = Scalar(9.0, 130.0, 70.0)
-        val highHSV = Scalar(24.0, 255.0, 255.0)
+        val lowHSV = Scalar(20.0, 90.0, 0.0)
+        val highHSV = Scalar(37.0, 255.0, 255.0)
         Core.inRange(mat, lowHSV, highHSV, mat)
         val left = mat.submat(LEFT_ROI)
         val right = mat.submat(RIGHT_ROI)
