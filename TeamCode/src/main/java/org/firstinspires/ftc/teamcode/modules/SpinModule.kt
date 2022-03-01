@@ -22,11 +22,11 @@ class SpinModule(override val opMode: OpMode) : RobotModule {
     }
 
     fun move_left(){
-        motor.targetPosition = -1500
+        motor.targetPosition = 2300
     }
 
     fun move_right(){
-        motor.targetPosition = 1500
+        motor.targetPosition = -2300
     }
 
     fun move_init(){

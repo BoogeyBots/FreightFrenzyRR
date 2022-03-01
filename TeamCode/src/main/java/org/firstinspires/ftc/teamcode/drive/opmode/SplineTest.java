@@ -17,22 +17,41 @@ public class SplineTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        waitForStart();
-
-        if (isStopRequested()) return;
 
         Trajectory traj = drive.trajectoryBuilder(new Pose2d())
                 .splineTo(new Vector2d(30, 30), 0)
                 .build();
 
-        drive.followTrajectory(traj);
+        Trajectory traj2 = drive.trajectoryBuilder(new Pose2d())
+                .splineTo(new Vector2d(30, 30), 0)
+                .build();
 
-        sleep(2000);
 
+
+
+        waitForStart();
+
+        if (isStopRequested()) return;
+
+        //drive.followTrajectory(traj);
+
+
+        /*
         drive.followTrajectory(
                 drive.trajectoryBuilder(traj.end(), true)
                         .splineTo(new Vector2d(0, 0), Math.toRadians(180))
                         .build()
         );
+
+         */
+
+        drive.followTrajectoryAsync(traj);
+
+        while (opModeIsActive() && !isStopRequested()) {
+            if (!drive.isBusy()) {
+                drive.followTrajectoryAsync(traj2);
+            }
+        }
+
     }
 }

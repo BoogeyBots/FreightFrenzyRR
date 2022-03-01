@@ -7,8 +7,6 @@ import com.qualcomm.robotcore.hardware.HardwareDevice
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
-import org.firstinspires.ftc.teamcode.test.DistanceAndServo
-import java.lang.Thread.sleep
 
 class IntakeModule(override val opMode: OpMode) : RobotModule {
     override var components: HashMap<String, HardwareDevice> = hashMapOf()
@@ -27,8 +25,9 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
         INTAKE_START,
         STOP_MOTOR,
         ARM_SUS,
-        INTAKE_JOS,
-        ARM_JOS
+        INTAKE_MIDDLE,
+        ARM_JOS,
+        INTAKE_JOS
     }
 
     var intakeState = FSM.INTAKE_START
@@ -50,7 +49,12 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
         servo1.position = 0.8
         servo2.position = 0.2
 
+        intakeState = FSM.INTAKE_START
+    }
 
+    fun intake_middle(){
+        servo1.position = 0.5
+        servo2.position = 0.5
     }
 
     fun move_in(){
@@ -68,6 +72,10 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
             return true
         }
         return false
+    }
+
+    fun servo_up() {
+        servo_arm.position = 0.0
     }
 
     fun move_on_detect(){
@@ -91,13 +99,13 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
             FSM.ARM_SUS -> {
                 if(timer.milliseconds() > 100.0){
                     timer.reset()
-                    intakeState = FSM.INTAKE_JOS
+                    intakeState = FSM.INTAKE_MIDDLE
                 }
             }
-            FSM.INTAKE_JOS ->{
+            FSM.INTAKE_MIDDLE ->{
                 if (timer.milliseconds() > 500.0){
-                    servo1.position = 0.8
-                    servo2.position = 0.2
+                    servo1.position = 0.5
+                    servo2.position = 0.5
                     telemetry?.addData("AM AJUNS", 2)
                     telemetry?.update()
                     timer.reset()
@@ -105,12 +113,17 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
                 }
             }
             FSM.ARM_JOS -> {
-                if(timer.milliseconds() > 500.0){
-                    servo_arm.position = .6
+                if(timer.milliseconds() > 100.0){
                     timer.reset()
                     has_detected = false
-                    intakeState = FSM.INTAKE_START
                 }
+            }
+            FSM.INTAKE_JOS -> {
+                servo1.position = 0.8
+                servo2.position = 0.2
+                servo_arm.position = .6
+
+                intakeState = FSM.INTAKE_START
             }
 
         }
@@ -118,7 +131,7 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
 
     companion object{
         var is_up = false
-
+        var element_gone = false
 
 
 

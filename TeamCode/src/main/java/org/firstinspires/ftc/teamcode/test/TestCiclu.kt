@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.bbopmode.BBLinearOpMode
-import org.firstinspires.ftc.teamcode.bbopmode.BBOpMode
 import org.firstinspires.ftc.teamcode.bbopmode.get
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.modules.*
@@ -53,7 +52,7 @@ class TestCiclu : BBLinearOpMode() {
 
             when(liftState){
                 LIFT_AUTO.IDLE ->{
-                    if(get<IntakeModule>().intakeState == IntakeModule.FSM.INTAKE_JOS) {
+                    if(get<IntakeModule>().intakeState == IntakeModule.FSM.INTAKE_MIDDLE) {
                         telemetry.addData("TE ROG APARI", "pls")
                         telemetry.update()
                         liftState = LIFT_AUTO.START

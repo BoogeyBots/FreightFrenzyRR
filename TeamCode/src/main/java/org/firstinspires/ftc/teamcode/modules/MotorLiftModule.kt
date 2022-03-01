@@ -25,7 +25,7 @@ class MotorLiftModule(override val opMode: OpMode) : RobotModule {
     }
 
     fun extend(){
-        motor.targetPosition = 2500
+        motor.targetPosition = 2700
     }
 
     fun goUp(){
