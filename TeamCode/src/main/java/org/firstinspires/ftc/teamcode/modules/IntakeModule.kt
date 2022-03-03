@@ -57,6 +57,16 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
         servo2.position = 0.5
     }
 
+    fun intake_down(){
+        servo1.position = 0.8
+        servo2.position = 0.2
+    }
+
+    fun intake_up(){
+        servo1.position = 0.2
+        servo2.position = 0.8
+    }
+
     fun move_in(){
         dcmotor.power = -0.7
     }
@@ -87,6 +97,7 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
                     servo2.position = 0.8
                     servo_arm.position = 0.0
                     intakeState = FSM.STOP_MOTOR
+
                 }
             }
             FSM.STOP_MOTOR -> {

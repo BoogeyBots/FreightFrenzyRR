@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.vision
 import com.acmerobotics.dashboard.FtcDashboard
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.HardwareDevice
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.modules.RobotModule
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
@@ -18,14 +19,17 @@ class Detectare( override val opMode: OpMode) : OpenCvPipeline(), RobotModule {
                 "cameraMonitorViewId",
                 "id", hardwareMap!!.appContext.packageName
             )
-        phoneCam = OpenCvCameraFactory.getInstance()
-            .createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId)
-        phoneCam?.setPipeline(this)
-        phoneCam?.openCameraDeviceAsync(object : AsyncCameraOpenListener {
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(
+            hardwareMap!!.get(
+                WebcamName::class.java, "Webcam 1"
+            ), cameraMonitorViewId
+        )
+        webcam?.setPipeline(this)
+        webcam?.openCameraDeviceAsync(object : AsyncCameraOpenListener {
             override fun onOpened() {
-                phoneCam?.startStreaming(320, 240, OpenCvCameraRotation.SIDEWAYS_LEFT)
-                phoneCam?.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW)
-                FtcDashboard.getInstance().startCameraStream(phoneCam, 0.0)
+                webcam?.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT)
+                webcam?.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW)
+                FtcDashboard.getInstance().startCameraStream(webcam, 0.0)
             }
 
             override fun onError(errorCode: Int) {}
@@ -43,8 +47,8 @@ class Detectare( override val opMode: OpMode) : OpenCvPipeline(), RobotModule {
 
     override fun processFrame(input: Mat): Mat {
         Imgproc.cvtColor(input, mat, Imgproc.COLOR_RGB2HSV)
-        val lowHSV = Scalar(20.0, 90.0, 0.0)
-        val highHSV = Scalar(37.0, 255.0, 255.0)
+        val lowHSV = Scalar(15.0, 155.0, 120.0)
+        val highHSV = Scalar(30.0, 255.0, 255.0)
         Core.inRange(mat, lowHSV, highHSV, mat)
         val left = mat.submat(LEFT_ROI)
         val right = mat.submat(RIGHT_ROI)
@@ -96,7 +100,7 @@ class Detectare( override val opMode: OpMode) : OpenCvPipeline(), RobotModule {
             Location.MID -> {return Location.MID}
 
         }
-        phoneCam!!.stopStreaming()
+        webcam!!.stopStreaming()
         return Location.MID
     }
 
@@ -114,6 +118,6 @@ class Detectare( override val opMode: OpMode) : OpenCvPipeline(), RobotModule {
         var PERCENT_COLOR_THRESHOLD = 0.3
 
 
-        var phoneCam: OpenCvCamera? = null
+        var webcam: OpenCvWebcam? = null
     }
 }

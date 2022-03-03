@@ -28,28 +28,30 @@ class AutoRata : BBLinearOpMode() {
             it.init()
         }
 
+
         val startPose = Pose2d(-39.0, -65.5, 0.0)
         drive.poseEstimate = startPose
 
         val trajSeq: TrajectorySequence = drive.trajectorySequenceBuilder(startPose)
             .addTemporalMarker {
                 get<DuckModule>().move_counterclockwise()
+                get<IntakeModule>().intake_middle()
             }
-            .lineToLinearHeading(Pose2d(-62.0, -55.9, Math.toRadians(-65.00)))
+            .lineToLinearHeading(Pose2d(-62.4, -55.9, Math.toRadians(-65.00)))
             .waitSeconds(2.00)
             .addTemporalMarker{
                 get<DuckModule>().stop()
             }
-            .addTemporalMarker{
+            .UNSTABLE_addTemporalMarkerOffset(.5){
                 liftState = LIFT_AUTO.START
             }
-            .UNSTABLE_addTemporalMarkerOffset(0.4){
+            .UNSTABLE_addTemporalMarkerOffset(2.0){
                 get<SpinModule>().move_right()
             }
             .setTangent(Math.toRadians(-65.00))
-            .lineToLinearHeading(Pose2d(-10.0, -61.5, Math.toRadians(0.0)))
+            .lineToLinearHeading(Pose2d(-10.0, -45.5, Math.toRadians(0.0)))
             .addTemporalMarker {
-                liftState = LIFT_AUTO.EXTEND
+                liftState = LIFT_AUTO.UP
             }
             .build()
 
@@ -57,7 +59,9 @@ class AutoRata : BBLinearOpMode() {
 
         get<ServoLiftModule>().move_close()
         get<IntakeModule>().servo_up()
-        get<IntakeModule>().intake_middle()
+        get<IntakeModule>().intake_up()
+        liftState = LIFT_AUTO.IDLE
+
 
         waitForStart()
 
@@ -86,6 +90,7 @@ class AutoRata : BBLinearOpMode() {
                     get<ServoLiftModule>().move_close()
                     get<ServoLiftModule>().move_extend()
                     get<ServoRidicareLift>().move_down()
+
                     timer.reset()
                 }
 
