@@ -19,17 +19,26 @@ class SpinModule(override val opMode: OpMode) : RobotModule {
         motor.mode = DcMotor.RunMode.RUN_TO_POSITION
         motor.setVelocityPIDFCoefficients(13.0, 0.0, 1.0, 12.0)
         motor.power = 1.0
+        delimitare = 0
     }
 
     fun move_left(){
-        motor.targetPosition = 2300
+        motor.targetPosition = delimitare + 2300
     }
 
     fun move_right(){
-        motor.targetPosition = -2300
+        motor.targetPosition = delimitare - 2300
     }
 
     fun move_init(){
-        motor.targetPosition = 0
+        motor.targetPosition = delimitare
+    }
+
+    fun move_delimitare() {
+        delimitare += 50
+    }
+
+    companion object{
+        var delimitare = 0
     }
 }

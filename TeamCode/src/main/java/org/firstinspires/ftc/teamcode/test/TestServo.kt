@@ -10,9 +10,7 @@ class TestServo : LinearOpMode(){
     lateinit var servo1: Servo
 
     override fun runOpMode() {
-        servo1 = hardwareMap.get(Servo::class.java, "servo_lift_close")
-
-        servo1.position = 0.5
+        servo1 = hardwareMap.get(Servo::class.java, "servo1")
 
         waitForStart()
 

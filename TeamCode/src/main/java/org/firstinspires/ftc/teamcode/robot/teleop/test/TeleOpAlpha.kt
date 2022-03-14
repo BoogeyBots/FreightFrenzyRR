@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.modules.*
 
 @TeleOp
 class TeleOpAlpha : BBLinearOpMode() {
-    override val modules: Robot = Robot(setOf(DuckModule(this),IntakeModule(this), MotorLiftModule(this), ServoLiftModule(this), ServoRidicareLift(this), SpinModule(this)))
+    override val modules: Robot = Robot(setOf(DuckModule(this),IntakeModule(this), MotorLiftModule(this), ServoLiftModule(this), ServoRidicareLift(this), SpinModule(this), Ruleta(this)))
 
 
     override fun runOpMode() {
@@ -25,6 +25,7 @@ class TeleOpAlpha : BBLinearOpMode() {
         get<ServoLiftModule>().init()
         get<ServoRidicareLift>().init()
         get<SpinModule>().init()
+        get<Ruleta>().init()
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
 
 
@@ -45,7 +46,7 @@ class TeleOpAlpha : BBLinearOpMode() {
             drive.setWeightedDrivePower(
                 Pose2d(
                     forwardMovement / denominator_slow,
-                    (-gamepad1.left_stick_x).toDouble() / denominator_slow,
+                    ((-gamepad1.left_stick_x).toDouble() / ((denominator_slow) * 3.0)),
                     (-gamepad1.right_stick_x).toDouble() / denominator_slow
                 )
             )
@@ -134,14 +135,20 @@ class TeleOpAlpha : BBLinearOpMode() {
             }
 
 
-            if (gamepad1.a) {
-                get<IntakeModule>().move_in()
-            } else if (gamepad1.b) {
+            if((get<IntakeModule>().intakeState == IntakeModule.FSM.INTAKE_START) && !get<IntakeModule>().has_detected) {
+                if (gamepad1.a) {
+                    get<IntakeModule>().move_in()
+                }
+                else {
+                    get<IntakeModule>().stop()
+                }
+            }
+            if (gamepad1.b) {
                 get<IntakeModule>().move_out()
-            } else {
+            }
+            else{
                 get<IntakeModule>().stop()
             }
-
             if(gamepad1.y and (timer_slow.seconds() > 0.7)){
                 if(!robot_slow) {
                     denominator_slow = 2
@@ -154,25 +161,55 @@ class TeleOpAlpha : BBLinearOpMode() {
                 timer_slow.reset()
             }
 
+            if(!bool_ruleta) {
+                if (gamepad2.dpad_down) {
+                    get<ServoRidicareLift>().move_down()
+                    servo_lift_down = true
+                }
+                if (gamepad2.dpad_up) {
+                    get<ServoRidicareLift>().move_up()
+                    get<SpinModule>().move_init()
+                    servo_lift_down = false
+                }
 
-            if (gamepad2.dpad_down) {
-                get<ServoRidicareLift>().move_down()
-                servo_lift_down = true
-            }
-            if (gamepad2.dpad_up) {
-                get<ServoRidicareLift>().move_up()
-                get<SpinModule>().move_init()
-                servo_lift_down = false
+                if (gamepad2.dpad_left) {
+                    get<ServoLiftModule>().move_inside()
+                }
+                if (gamepad2.dpad_right) {
+                    get<ServoLiftModule>().move_extend()
+                }
             }
 
-            if (gamepad2.dpad_left) {
-                get<ServoLiftModule>().move_inside()
-            }
-            if (gamepad2.dpad_right) {
-                get<ServoLiftModule>().move_extend()
+            if(bool_ruleta){
+                if (gamepad2.dpad_up){
+                    get<Ruleta>().increment_y(false)
+                }
+                else if (gamepad2.dpad_down){
+                    get<Ruleta>().increment_y(true)
+                }
+
+                if(gamepad2.dpad_right){
+                    get<Ruleta>().increment_x(true)
+                }
+                else if(gamepad2.dpad_left){
+                    get<Ruleta>().increment_x(false)
+                }
             }
 
+            if(gamepad2.back && timer.milliseconds() > 500.0){
+                bool_ruleta = !bool_ruleta
+                timer.reset()
+            }
 
+            if (gamepad2.b){
+                get<Ruleta>().move_cr(true)
+            }
+            else if(gamepad2.x){
+                get<Ruleta>().move_cr(false)
+            }
+            else {
+                get<Ruleta>().stop_cr()
+            }
             /*
             if (gamepad1.right_bumper) {
                 get<MotorLiftModule>().extend()
@@ -181,7 +218,7 @@ class TeleOpAlpha : BBLinearOpMode() {
              */
 
             if (gamepad2.left_bumper) {
-                get<MotorLiftModule>().go_intake()
+                get<SpinModule>().move_init()
             }
 
             if(servo_lift_down) {
@@ -198,13 +235,21 @@ class TeleOpAlpha : BBLinearOpMode() {
                 get<SpinModule>().move_init()
             }
 
-            if(gamepad2.a){
+            if(gamepad1.x){
                 get<DuckModule>().move_counterclockwise()
             }
             else{
                 get<DuckModule>().stop()
             }
 
+            if(gamepad1.back && (timer_delimitare.seconds() > 1.0)){
+                get<SpinModule>().move_delimitare()
+                get<SpinModule>().move_init()
+                timer_delimitare.reset()
+            }
+
+            telemetry.addData("DELIMITARE", SpinModule.delimitare)
+            telemetry.update()
         }
 
     }
@@ -212,6 +257,7 @@ class TeleOpAlpha : BBLinearOpMode() {
 
     companion object {
         val timer = ElapsedTime()
+        val timer_delimitare = ElapsedTime()
 
         var lift_opened = true
         var servo_lift_down = false
@@ -231,6 +277,8 @@ class TeleOpAlpha : BBLinearOpMode() {
         var denominator_slow = 1
         var robot_slow = false
         var timer_slow = ElapsedTime()
+
+        var bool_ruleta = false
     }
 
 }

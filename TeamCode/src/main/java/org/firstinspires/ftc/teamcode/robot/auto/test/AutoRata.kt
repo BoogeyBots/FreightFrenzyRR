@@ -10,15 +10,16 @@ import org.firstinspires.ftc.teamcode.bbopmode.get
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.modules.*
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
-
-
+import org.firstinspires.ftc.teamcode.modules.Detectare
+import org.firstinspires.ftc.teamcode.test.TeleOpAlpha
+import org.opencv.core.Mat
 
 
 @Autonomous
 class AutoRata : BBLinearOpMode() {
     override val modules: Robot = Robot(setOf(
         DuckModule(this),
-        IntakeModule(this), MotorLiftModule(this), ServoLiftModule(this), ServoRidicareLift(this), SpinModule(this)
+        IntakeModule(this), MotorLiftModule(this), ServoLiftModule(this), ServoRidicareLift(this), SpinModule(this), Detectare(this)
     ))
 
 
@@ -32,11 +33,52 @@ class AutoRata : BBLinearOpMode() {
         val startPose = Pose2d(-39.0, -65.5, 0.0)
         drive.poseEstimate = startPose
 
+
+        get<ServoLiftModule>().move_close()
+        get<IntakeModule>().servo_up()
+        get<IntakeModule>().intake_up()
+        liftState = LIFT_AUTO.IDLE
+
+        while (!isStarted) {
+            position = get<Detectare>().detect()
+
+            telemetry.addData("POZITIE", position)
+            telemetry.update()
+        }
+
+
+        when(position) {
+            Detectare.Location.LEFT -> {
+                index_rata = 3
+                index_rata_y = -53.5
+                index_rata_x = -11.0
+                index_heading = 30.0
+            }
+            Detectare.Location.MID -> {
+                index_rata = 2
+                index_rata_y = -50.4
+                index_rata_x = -4.0
+                index_heading = 0.0
+            }
+            Detectare.Location.RIGHT -> {
+                index_rata = 1
+                index_rata_y = -41.5
+                index_rata_x = 3.8
+                index_heading = 0.0
+            }
+            else -> {
+                index_rata = 3
+                index_rata_y = -70.0
+            }
+        }
+
         val trajSeq: TrajectorySequence = drive.trajectorySequenceBuilder(startPose)
             .addTemporalMarker {
                 get<DuckModule>().move_counterclockwise()
-                get<IntakeModule>().intake_middle()
+                get<IntakeModule>().intake_down()
             }
+
+
             .lineToLinearHeading(Pose2d(-62.4, -55.9, Math.toRadians(-65.00)))
             .waitSeconds(2.00)
             .addTemporalMarker{
@@ -48,20 +90,53 @@ class AutoRata : BBLinearOpMode() {
             .UNSTABLE_addTemporalMarkerOffset(2.0){
                 get<SpinModule>().move_right()
             }
+
             .setTangent(Math.toRadians(-65.00))
-            .lineToLinearHeading(Pose2d(-10.0, -45.5, Math.toRadians(0.0)))
+
+
+            .lineToLinearHeading(Pose2d(-7.0, index_rata_y, Math.toRadians(0.0)))
             .addTemporalMarker {
                 liftState = LIFT_AUTO.UP
             }
+
+            .UNSTABLE_addTemporalMarkerOffset(4.5) {
+                get<IntakeModule>().intake_down()
+                get<IntakeModule>().move_in_auto()
+                get<IntakeModule>().servo_down()
+                index_rata = 1
+            }
+
+            .waitSeconds(4.0)
+            .lineToLinearHeading(Pose2d(index_rata_x, -37.4, Math.toRadians(index_heading)))
+            .UNSTABLE_addTemporalMarkerOffset(2.0){
+                get<IntakeModule>().stop()
+            }
+
+            .setTangent(Math.toRadians(index_heading))
+
+            .lineToLinearHeading(Pose2d(-7.0, -42.5, Math.toRadians(0.0)))
+            .UNSTABLE_addTemporalMarkerOffset(2.0){
+                get<SpinModule>().move_right()
+            }
+            .UNSTABLE_addTemporalMarkerOffset(4.0){
+                liftState = LIFT_AUTO.UP
+
+            }
+            .addTemporalMarker {
+                get<IntakeModule>().intake_middle()
+            }
+            .UNSTABLE_addTemporalMarkerOffset(4.0){
+                get<IntakeModule>().intake_middle()
+            }
+
+            .waitSeconds(6.0)
+
+
+            .lineTo(Vector2d(12.0,-68.0))
+            .lineTo(Vector2d(38.0, -67.0))
             .build()
 
         drive.followTrajectorySequenceAsync(trajSeq)
-
-        get<ServoLiftModule>().move_close()
-        get<IntakeModule>().servo_up()
-        get<IntakeModule>().intake_up()
-        liftState = LIFT_AUTO.IDLE
-
 
         waitForStart()
 
@@ -70,6 +145,15 @@ class AutoRata : BBLinearOpMode() {
         while (opModeIsActive()){
             drive.update()
             update_lift()
+            get<IntakeModule>().move_on_detect()
+            if (get<IntakeModule>().detect()) {
+                get<MotorLiftModule>().go_intake()
+                get<ServoLiftModule>().move_open()
+                get<ServoLiftModule>().move_inside()
+                get<ServoRidicareLift>().move_intake()
+                get<IntakeModule>().has_detected = true
+
+            }
         }
 
     }
@@ -79,26 +163,20 @@ class AutoRata : BBLinearOpMode() {
         when (liftState) {
             LIFT_AUTO.IDLE -> {
                 if (get<IntakeModule>().intakeState == IntakeModule.FSM.INTAKE_MIDDLE) {
-                    telemetry.addData("TE ROG APARI", "pls")
-                    telemetry.update()
+
                     liftState = LIFT_AUTO.START
                     timer.reset()
                 }
             }
+
             LIFT_AUTO.START -> {
                 if (timer.milliseconds() > 800.0) {
                     get<ServoLiftModule>().move_close()
                     get<ServoLiftModule>().move_extend()
-                    get<ServoRidicareLift>().move_down()
+                    get<ServoRidicareLift>().set_position(index_rata)
 
                     timer.reset()
                 }
-
-            }
-
-            LIFT_AUTO.EXTEND -> {
-                get<MotorLiftModule>().extend()
-                liftState = LIFT_AUTO.UP
 
             }
 
@@ -107,34 +185,43 @@ class AutoRata : BBLinearOpMode() {
                     get<ServoLiftModule>().move_open()
                     liftState = LIFT_AUTO.UP_SERVO_LIFT
                     timer.reset()
-
-                    }
+                }
             }
 
             LIFT_AUTO.UP_SERVO_LIFT -> {
-                if (timer.milliseconds() > 750.0) {
-                    get<ServoLiftModule>().move_inside()
+                if (timer.milliseconds() > 300.0) {
+                    get<SpinModule>().move_init()
+
                     liftState = LIFT_AUTO.UP_MID
                     timer.reset()
                 }
             }
 
             LIFT_AUTO.UP_MID -> {
-                if (timer.milliseconds() > 300.0) {
+                if (timer.milliseconds() > 1000.0) {
+                    get<ServoLiftModule>().move_inside()
                     get<MotorLiftModule>().go_intake()
-                    get<SpinModule>().move_init()
+                    liftState = LIFT_AUTO.BACK_SERVO
+                    timer.reset()
+                }
+            }
+
+            LIFT_AUTO.BACK_SERVO -> {
+                if(timer.milliseconds() > 1000.0){
+                    get<ServoRidicareLift>().move_intake()
                     liftState = LIFT_AUTO.BACK
                     timer.reset()
                 }
             }
+
             LIFT_AUTO.BACK -> {
                 if (timer.milliseconds() > 300.0) {
-                    get<ServoRidicareLift>().move_intake()
                     liftState = LIFT_AUTO.IDLE
                     timer.reset()
                     get<IntakeModule>().intakeState = IntakeModule.FSM.INTAKE_JOS
                 }
             }
+
         }
     }
 
@@ -146,13 +233,20 @@ class AutoRata : BBLinearOpMode() {
         enum class LIFT_AUTO {
             IDLE,
             START,
-            EXTEND,
+
             UP_SERVO_LIFT,
             UP,
             UP_MID,
+            BACK_SERVO,
             BACK
         }
 
+        var index_rata = 1
+        var index_rata_y = 0.0
+        var index_rata_x = 0.0
+        var index_heading = 0.0
+
+        lateinit var position: Detectare.Location
 
     }
 }

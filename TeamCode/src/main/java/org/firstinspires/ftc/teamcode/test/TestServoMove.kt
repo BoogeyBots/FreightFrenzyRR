@@ -21,9 +21,9 @@ class TestServoMove : BBLinearOpMode() {
 
     override fun runOpMode() {
         val servoMod = modules.modules.first()
-        servoMod.components["servo"] = hardwareMap.get(Servo::class.java, "servo_lift_arm")
+        servoMod.components["servo"] = hardwareMap.get(Servo::class.java, "servo_ruleta_x")
         val servo = modules.get<TestModule>().get<Servo>("servo")
-        servo.position = 0.22
+        servo.position = 0.4
 
         waitForStart()
 
