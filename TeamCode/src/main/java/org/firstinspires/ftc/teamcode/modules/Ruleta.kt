@@ -18,7 +18,7 @@ class Ruleta(override val opMode: OpMode) : RobotModule {
         components["servo_ruleta_cr"] = hardwareMap!!.get(CRServo::class.java, "servo_ruleta_cr")
 
         servo_x.position = 0.65
-        servo_y.position = 0.55
+        servo_y.position = 0.60
     }
 
     fun increment_x(forward: Boolean){

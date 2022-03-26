@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.test
+package org.firstinspires.ftc.teamcode.robot.teleop.test
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.bbopmode.BBLinearOpMode
 import org.firstinspires.ftc.teamcode.bbopmode.get
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.modules.*
-
 
 @TeleOp
 class TeleOpAlpha : BBLinearOpMode() {
@@ -92,6 +91,44 @@ class TeleOpAlpha : BBLinearOpMode() {
                         get<MotorLiftModule>().extend()
                         liftState = LIFT_AUTO.UP
                     }
+                    else if(gamepad2.y){
+                        get<ServoLiftModule>().move_open()
+                        timer.reset()
+                        liftState = LIFT_AUTO.NOT_EXTEND_UP_SERVO_LIFT
+                    }
+                }
+                LIFT_AUTO.NOT_EXTEND_UP_SERVO_LIFT -> {
+                    if (timer.milliseconds() > 500.0) {
+                        get<SpinModule>().move_init()
+
+                        liftState = LIFT_AUTO.NOT_EXTEND_UP_MID
+                        timer.reset()
+                    }
+                }
+
+                LIFT_AUTO.NOT_EXTEND_UP_MID -> {
+                    if (timer.milliseconds() > 1000.0) {
+                        get<ServoLiftModule>().move_inside()
+                        get<MotorLiftModule>().go_intake()
+                        liftState = LIFT_AUTO.NOT_EXTEND_BACK_SERVO
+                        timer.reset()
+                    }
+                }
+
+                LIFT_AUTO.NOT_EXTEND_BACK_SERVO -> {
+                    if(timer.milliseconds() > 1000.0){
+                        get<ServoRidicareLift>().move_intake()
+                        liftState = LIFT_AUTO.BACK
+                        timer.reset()
+                    }
+                }
+
+                LIFT_AUTO.NOT_EXTEND_BACK -> {
+                    if (timer.milliseconds() > 300.0) {
+                        liftState = LIFT_AUTO.IDLE
+                        timer.reset()
+                        get<IntakeModule>().intakeState = IntakeModule.FSM.INTAKE_JOS
+                    }
                 }
 
                 LIFT_AUTO.UP -> {
@@ -139,16 +176,15 @@ class TeleOpAlpha : BBLinearOpMode() {
                 if (gamepad1.a) {
                     get<IntakeModule>().move_in()
                 }
+                else if (gamepad1.b) {
+                    get<IntakeModule>().move_out()
+                }
                 else {
                     get<IntakeModule>().stop()
                 }
             }
-            if (gamepad1.b) {
-                get<IntakeModule>().move_out()
-            }
-            else{
-                get<IntakeModule>().stop()
-            }
+
+
             if(gamepad1.y and (timer_slow.seconds() > 0.7)){
                 if(!robot_slow) {
                     denominator_slow = 2
@@ -248,6 +284,7 @@ class TeleOpAlpha : BBLinearOpMode() {
                 timer_delimitare.reset()
             }
 
+
             telemetry.addData("DELIMITARE", SpinModule.delimitare)
             telemetry.update()
         }
@@ -269,7 +306,12 @@ class TeleOpAlpha : BBLinearOpMode() {
             UP_SERVO_LIFT,
             UP,
             UP_MID,
-            BACK
+            BACK,
+            NOT_EXTEND_UP_SERVO_LIFT,
+            NOT_EXTEND_UP_MID,
+            NOT_EXTEND_BACK_SERVO,
+            NOT_EXTEND_BACK
+
         }
 
         var liftState = LIFT_AUTO.IDLE

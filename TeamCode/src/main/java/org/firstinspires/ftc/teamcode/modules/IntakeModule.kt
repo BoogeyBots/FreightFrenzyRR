@@ -45,7 +45,7 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
 
         dcmotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
-        servo_arm.position = 0.7
+        servo_arm.position = 0.8
 
 
         servo1.position = 0.82
@@ -70,14 +70,14 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
     }
 
     fun move_in_auto() {
-        dcmotor.power = -.5
+        dcmotor.power = -1.0
     }
 
     fun move_in(){
-        dcmotor.power = -0.7
+        dcmotor.power = -1.0
     }
     fun move_out() {
-        dcmotor.power = 0.7
+        dcmotor.power = 1.0
     }
     fun stop(){
         dcmotor.power = 0.0
@@ -94,7 +94,7 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
         servo_arm.position = 0.0
     }
     fun servo_down(){
-        servo_arm.position = 0.7
+        servo_arm.position = 0.8
     }
 
     fun move_on_detect(){
@@ -105,7 +105,7 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
                     servo1.position = 0.2
                     servo2.position = 0.8
                     servo_arm.position = 0.0
-                    dcmotor.power = -0.7
+                    dcmotor.power = -1.0
                     intakeState = FSM.STOP_MOTOR
 
                 }
@@ -148,7 +148,7 @@ class IntakeModule(override val opMode: OpMode) : RobotModule {
             FSM.INTAKE_JOS -> {
                 servo1.position = 0.82
                 servo2.position = 0.18
-                servo_arm.position = .7
+                servo_arm.position = .8
 
                 intakeState = FSM.INTAKE_START
             }

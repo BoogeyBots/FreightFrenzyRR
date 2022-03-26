@@ -11,8 +11,6 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.modules.*
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.modules.Detectare
-import org.firstinspires.ftc.teamcode.test.TeleOpAlpha
-import org.opencv.core.Mat
 
 
 @Autonomous
