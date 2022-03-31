@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.bbopmode.BBOpMode
 import org.firstinspires.ftc.teamcode.modules.TestModule
 
+@Disabled
 @TeleOp()
 class TestLift : BBOpMode(){
     override val modules: Robot = Robot( setOf(TestModule(this)))

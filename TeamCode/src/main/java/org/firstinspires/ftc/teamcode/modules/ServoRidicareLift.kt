@@ -39,7 +39,7 @@ class ServoRidicareLift(override val opMode: OpMode) : RobotModule {
     }
 
     companion object{
-        val listPos: List<Pair<Double,Double>> = listOf(Pair(0.165,0.83), Pair(0.31,0.69), Pair(0.51, 0.49), Pair(0.59, 0.41), Pair(0.45,0.55))
+        val listPos: List<Pair<Double,Double>> = listOf(Pair(0.165,0.83), Pair(0.31,0.69), Pair(0.51, 0.49), Pair(0.61, 0.39), Pair(0.45,0.55))
         var currentPos = 0
     }
 }

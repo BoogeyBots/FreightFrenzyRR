@@ -1,9 +1,7 @@
-package org.firstinspires.ftc.teamcode.robot.auto.test
+package org.firstinspires.ftc.teamcode.robot.auto.nationala.albastru
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
-import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.bbopmode.BBLinearOpMode
@@ -11,15 +9,14 @@ import org.firstinspires.ftc.teamcode.bbopmode.get
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.modules.*
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
+import org.firstinspires.ftc.teamcode.modules.Detectare
 
 
-
-@Disabled
 @Autonomous
-class AutoTest : BBLinearOpMode() {
+class AutoAlbastruCARUSELstorage : BBLinearOpMode() {
     override val modules: Robot = Robot(setOf(
         DuckModule(this),
-        IntakeModule(this), MotorLiftModule(this), ServoLiftModule(this), ServoRidicareLift(this), SpinModule(this)
+        IntakeModule(this), MotorLiftModule(this), ServoLiftModule(this), ServoRidicareLift(this), SpinModule(this), Detectare(this)
     ))
 
 
@@ -29,25 +26,42 @@ class AutoTest : BBLinearOpMode() {
             it.init()
         }
 
-        val startPose = Pose2d(10.0, -65.5, 0.0)
+
+        val startPose = Pose2d(-34.0, 65.5, Math.toRadians(180.0))
         drive.poseEstimate = startPose
 
+
+        get<ServoLiftModule>().move_open()
+        get<IntakeModule>().servo_up()
+        get<IntakeModule>().intake_up()
+        liftState = LIFT_AUTO.IDLE
+
+
+
         val trajSeq: TrajectorySequence = drive.trajectorySequenceBuilder(startPose)
-            .addTemporalMarker{
-                liftState = LIFT_AUTO.START
-            }
-            .UNSTABLE_addTemporalMarkerOffset(0.4){
-                get<SpinModule>().move_right()
-            }
-            .lineTo(Vector2d(-10.0, -60.5))
             .addTemporalMarker {
-                liftState = LIFT_AUTO.EXTEND
+                get<DuckModule>().move_clockwise()
+                get<IntakeModule>().intake_down()
             }
-            .build()
+            .UNSTABLE_addTemporalMarkerOffset(0.5){
+                get<ServoLiftModule>().move_close()
+            }
+
+            .waitSeconds(7.0)
+
+
+            .lineToLinearHeading(Pose2d(-54.41, 62.4, Math.toRadians(+195.00)))
+            .waitSeconds(2.00)
+            .addTemporalMarker{
+                get<DuckModule>().stop()
+            }
+            .setTangent(Math.toRadians(+195.00))
+
+            .lineToLinearHeading(Pose2d(-59.0, 35.5, Math.toRadians(180.0)))
+
+                  .build()
 
         drive.followTrajectorySequenceAsync(trajSeq)
-
-        get<ServoLiftModule>().move_close()
 
         waitForStart()
 
@@ -56,6 +70,15 @@ class AutoTest : BBLinearOpMode() {
         while (opModeIsActive()){
             drive.update()
             update_lift()
+            get<IntakeModule>().move_on_detect()
+            if (get<IntakeModule>().detect()) {
+                get<MotorLiftModule>().go_intake()
+                get<ServoLiftModule>().move_open()
+                get<ServoLiftModule>().move_inside()
+                get<ServoRidicareLift>().move_intake()
+                get<IntakeModule>().has_detected = true
+
+            }
         }
 
     }
@@ -65,64 +88,68 @@ class AutoTest : BBLinearOpMode() {
         when (liftState) {
             LIFT_AUTO.IDLE -> {
                 if (get<IntakeModule>().intakeState == IntakeModule.FSM.INTAKE_MIDDLE) {
-                    telemetry.addData("TE ROG APARI", "pls")
-                    telemetry.update()
+
                     liftState = LIFT_AUTO.START
                     timer.reset()
                 }
             }
+
             LIFT_AUTO.START -> {
                 if (timer.milliseconds() > 800.0) {
                     get<ServoLiftModule>().move_close()
                     get<ServoLiftModule>().move_extend()
-                    get<ServoRidicareLift>().move_down()
+                    get<ServoRidicareLift>().set_position(index_rata)
+
                     timer.reset()
                 }
-
-            }
-
-            LIFT_AUTO.EXTEND -> {
-                    get<MotorLiftModule>().extend()
-                    liftState = LIFT_AUTO.UP
 
             }
 
             LIFT_AUTO.UP -> {
                 if (timer.milliseconds() > 1500.0) {
-                        get<ServoLiftModule>().move_open()
-                        liftState = LIFT_AUTO.UP_SERVO_LIFT
-                        timer.reset()
-
+                    get<ServoLiftModule>().move_open()
+                    liftState = LIFT_AUTO.UP_SERVO_LIFT
+                    timer.reset()
                 }
             }
 
             LIFT_AUTO.UP_SERVO_LIFT -> {
-                if (timer.milliseconds() > 750.0) {
-                    get<ServoLiftModule>().move_inside()
+                if (timer.milliseconds() > 500.0) {
+                    get<SpinModule>().move_init()
+
                     liftState = LIFT_AUTO.UP_MID
                     timer.reset()
                 }
             }
 
             LIFT_AUTO.UP_MID -> {
-                if (timer.milliseconds() > 300.0) {
+                if (timer.milliseconds() > 1000.0) {
+                    get<ServoLiftModule>().move_inside()
                     get<MotorLiftModule>().go_intake()
-                    get<SpinModule>().move_init()
+                    liftState = LIFT_AUTO.BACK_SERVO
+                    timer.reset()
+                }
+            }
+
+            LIFT_AUTO.BACK_SERVO -> {
+                if(timer.milliseconds() > 1000.0){
+                    get<ServoRidicareLift>().move_intake()
                     liftState = LIFT_AUTO.BACK
                     timer.reset()
                 }
             }
+
             LIFT_AUTO.BACK -> {
                 if (timer.milliseconds() > 300.0) {
-                    get<ServoRidicareLift>().move_intake()
                     liftState = LIFT_AUTO.IDLE
                     timer.reset()
                     get<IntakeModule>().intakeState = IntakeModule.FSM.INTAKE_JOS
                 }
             }
+
         }
     }
-    
+
     companion object {
         var liftState = LIFT_AUTO.IDLE
 
@@ -131,13 +158,20 @@ class AutoTest : BBLinearOpMode() {
         enum class LIFT_AUTO {
             IDLE,
             START,
-            EXTEND,
+
             UP_SERVO_LIFT,
             UP,
             UP_MID,
+            BACK_SERVO,
             BACK
         }
 
+        var index_rata = 1
+        var index_rata_y = 0.0
+        var index_rata_x = 0.0
+        var index_heading = 0.0
+
+        lateinit var position: Detectare.Location
 
     }
 }

@@ -15,7 +15,7 @@ class ServoLiftModule(override val opMode: OpMode) : RobotModule {
         components["servo_lift_arm"] = hardwareMap!!.get(Servo::class.java, "servo_lift_arm")
 
         servo_close.position = 0.4
-        servo_arm.position = 0.22
+        servo_arm.position = 0.086
     }
 
 
@@ -24,15 +24,28 @@ class ServoLiftModule(override val opMode: OpMode) : RobotModule {
     }
 
     fun move_open(){
-        servo_close.position = 0.4
+        servo_close.position = 0.45
+    }
+
+    fun move_open_auto(){
+        servo_close.position = 0.25
     }
 
     fun move_extend(){
-        servo_arm.position = 0.9
+        servo_arm.position = 0.772
+    }
+
+    fun move_extend_shared(){
+        servo_arm.position = 0.85
+
+    }
+
+    fun move_inside_shared(){
+        servo_arm.position = 0.5
     }
 
     fun move_inside(){
-        servo_arm.position = 0.22
+        servo_arm.position = 0.086
     }
 
 

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.robot.teleop.test
+package org.firstinspires.ftc.teamcode.robot.teleop.test.nationala
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.modules.*
 
 @TeleOp
-class TeleOpAlpha : BBLinearOpMode() {
+class TeleOpSHIPPINGHUBrosu : BBLinearOpMode() {
     override val modules: Robot = Robot(setOf(DuckModule(this),IntakeModule(this), MotorLiftModule(this), ServoLiftModule(this), ServoRidicareLift(this), SpinModule(this), Ruleta(this)))
 
 
@@ -76,13 +76,19 @@ class TeleOpAlpha : BBLinearOpMode() {
                 LIFT_AUTO.START ->{
                     if(timer.milliseconds() > 800.0){
                         get<ServoLiftModule>().move_close()
-                        get<ServoLiftModule>().move_extend()
                         get<ServoRidicareLift>().move_down()
                         servo_lift_down = true
-                        liftState = LIFT_AUTO.EXTEND
+                        liftState = LIFT_AUTO.EXTEND_ARM
                         timer.reset()
                     }
 
+                }
+                LIFT_AUTO.EXTEND_ARM ->{
+                    if (timer.milliseconds() > 300.0){
+                        get<ServoLiftModule>().move_extend_shared()
+                        timer.reset()
+                        liftState = LIFT_AUTO.EXTEND
+                    }
                 }
 
                 LIFT_AUTO.EXTEND ->{
@@ -94,9 +100,18 @@ class TeleOpAlpha : BBLinearOpMode() {
                     else if(gamepad2.y){
                         get<ServoLiftModule>().move_open()
                         timer.reset()
+                        liftState = LIFT_AUTO.NOT_EXTEND_ARM_MIDDLE
+                    }
+                }
+
+                LIFT_AUTO.NOT_EXTEND_ARM_MIDDLE ->{
+                    if(timer.milliseconds() > 500.0){
+                        get<ServoLiftModule>().move_inside_shared()
+                        timer.reset()
                         liftState = LIFT_AUTO.NOT_EXTEND_UP_SERVO_LIFT
                     }
                 }
+
                 LIFT_AUTO.NOT_EXTEND_UP_SERVO_LIFT -> {
                     if (timer.milliseconds() > 500.0) {
                         get<SpinModule>().move_init()
@@ -216,21 +231,13 @@ class TeleOpAlpha : BBLinearOpMode() {
                 }
             }
 
-            if(bool_ruleta){
-                if (gamepad2.dpad_up){
-                    get<Ruleta>().increment_y(false)
-                }
-                else if (gamepad2.dpad_down){
-                    get<Ruleta>().increment_y(true)
-                }
 
-                if(gamepad2.dpad_right){
-                    get<Ruleta>().increment_x(true)
-                }
-                else if(gamepad2.dpad_left){
-                    get<Ruleta>().increment_x(false)
-                }
+            if(bool_ruleta){
+                get<Ruleta>().increment_x(-gamepad1.left_stick_x.toDouble() / 4.0)
+                get<Ruleta>().increment_y(gamepad1.left_stick_y.toDouble() * 0.007)
             }
+
+
 
             if(gamepad2.back && timer.milliseconds() > 500.0){
                 bool_ruleta = !bool_ruleta
@@ -258,11 +265,11 @@ class TeleOpAlpha : BBLinearOpMode() {
             }
 
             if(servo_lift_down) {
-
+                /*
                 if (gamepad2.left_trigger > 0.1) {
                     get<SpinModule>().move_left()
                 }
-
+                */
                 if (gamepad2.right_trigger > 0.1) {
                     get<SpinModule>().move_right()
                 }
@@ -302,11 +309,13 @@ class TeleOpAlpha : BBLinearOpMode() {
         enum class LIFT_AUTO {
             IDLE,
             START,
+            EXTEND_ARM,
             EXTEND,
             UP_SERVO_LIFT,
             UP,
             UP_MID,
             BACK,
+            NOT_EXTEND_ARM_MIDDLE,
             NOT_EXTEND_UP_SERVO_LIFT,
             NOT_EXTEND_UP_MID,
             NOT_EXTEND_BACK_SERVO,

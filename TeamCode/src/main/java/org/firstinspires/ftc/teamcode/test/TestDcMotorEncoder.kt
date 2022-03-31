@@ -23,6 +23,7 @@ object RobotConstants {
 }
 
 
+@Disabled
 @TeleOp()
 class TestDcMotorEncoder : BBOpMode(){
     override val modules: Robot = Robot( setOf(TestModule(this)))

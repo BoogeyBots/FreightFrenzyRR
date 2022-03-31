@@ -50,9 +50,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
  *
  * @see [REV Robotics Web Page](http://revrobotics.com)
  */
+
+@Disabled
 @TeleOp(name = "Sensor: REV2mDistance", group = "Sensor")
 class SensorREV2mDistance : LinearOpMode() {
-    var  sensorRange: DistanceSensor? = null
+    var sensorRange: DistanceSensor? = null
 
     override fun runOpMode() {
         // you can use this as a regular DistanceSensor.

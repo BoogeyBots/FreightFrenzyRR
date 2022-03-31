@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.modules.Detectare
 @TeleOp(name = "TestModulDetectare")
 class TestModulDetectare() : BBLinearOpMode() {
     override val modules: Robot = Robot(setOf(Detectare(this)))
+
     override fun runOpMode() {
         get<Detectare>().init()
 

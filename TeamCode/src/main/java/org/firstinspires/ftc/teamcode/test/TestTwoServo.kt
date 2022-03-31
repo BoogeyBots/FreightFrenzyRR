@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.test
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.bbopmode.BBLinearOpMode
 import org.firstinspires.ftc.teamcode.modules.TestModule
 
+@Disabled
 @TeleOp(name = "Test Two Servo", group = "TEST")
 class TestTwoServo : BBLinearOpMode() {
     override val modules = Robot(setOf(TestModule(this)))

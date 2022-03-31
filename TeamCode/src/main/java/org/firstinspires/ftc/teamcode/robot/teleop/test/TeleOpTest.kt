@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.robot.teleop.test
 
 import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.Robot
 import org.firstinspires.ftc.teamcode.bbopmode.BBLinearOpMode
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.bbopmode.get
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.modules.IntakeModule
 
+@Disabled
 @TeleOp
 class TeleOpTest : BBLinearOpMode() {
     override val modules: Robot = Robot(setOf(IntakeModule(this)))

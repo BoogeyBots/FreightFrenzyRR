@@ -42,7 +42,7 @@ import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 
 @TeleOp(name = "Distance și Servo", group = "Sensor")
-
+@Disabled
 class DistanceAndServo : LinearOpMode() {
     lateinit var sensorRange: DistanceSensor
     lateinit var servo: Servo
